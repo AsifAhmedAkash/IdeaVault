@@ -1,10 +1,11 @@
 "use client";
 
-import { FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaLinkedin, FaInstagram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
     return (
-        <footer className="w-full bg-primary text-white dark:bg-tertiary mt-20">
+        <footer className="w-full bg-[#394e00] text-white dark:bg-tertiary mt-20">
 
             <div className="max-w-7xl mx-auto px-6 md:px-10 py-20 grid grid-cols-1 md:grid-cols-4 gap-10">
 
@@ -22,7 +23,7 @@ export default function Footer() {
                             <FaLinkedin />
                         </a>
                         <a className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition">
-                            <FaTwitter />
+                            <FaXTwitter />
                         </a>
                         <a className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition">
                             <FaInstagram />
