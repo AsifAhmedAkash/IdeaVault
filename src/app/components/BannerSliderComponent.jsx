@@ -1,125 +1,105 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Button } from "@heroui/react";
-import { FaArrowRight } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
 
-const slides = [
-    {
-        id: 1,
-        tag: "Growth Ecosystem",
-        title: "Grounded Ideas, High Stakes Growth.",
-        description:
-            "IdeaVault connects visionary founders with a thriving innovation community.",
-        image:
-            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop",
-        primaryBtn: "Explore Ideas",
-        secondaryBtn: "View Portfolio",
-    },
-    {
-        id: 2,
-        tag: "Future Innovation",
-        title: "Build Smarter. Launch Faster.",
-        description:
-            "Discover innovative startup ideas and collaborate with creators.",
-        image:
-            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop",
-        primaryBtn: "Discover Trends",
-        secondaryBtn: "Join Community",
-    },
-    {
-        id: 3,
-        tag: "Creative Collaboration",
-        title: "Where Startup Ideas Become Reality.",
-        description:
-            "From AI to sustainable tech, build impactful ventures.",
-        image:
-            "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop",
-        primaryBtn: "Share Idea",
-        secondaryBtn: "Explore",
-    },
-];
+export default function Home() {
+    const [current, setCurrent] = useState(0);
+    const intervalRef = useRef(null);
 
-const AUTO_SLIDE = 5000;
+    const totalSlides = 3;
 
-export default function BannerSliderComponent() {
-    const [index, setIndex] = useState(0);
+    const nextSlide = () => {
+        setCurrent((prev) => (prev + 1) % totalSlides);
+    };
+
+    const goToSlide = (index) => {
+        setCurrent(index);
+        restartAuto();
+    };
+
+    const restartAuto = () => {
+        clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(nextSlide, 5000);
+    };
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setIndex((prev) => (prev + 1) % slides.length);
-        }, AUTO_SLIDE);
-
-        return () => clearInterval(interval);
+        intervalRef.current = setInterval(nextSlide, 5000);
+        return () => clearInterval(intervalRef.current);
     }, []);
 
     return (
-        <section className="relative h-screen w-full overflow-hidden bg-black">
+        <main className="relative h-screen w-full overflow-hidden bg-background">
 
-            {/* SLIDER TRACK */}
-            <div
-                className="flex h-full w-full transition-transform duration-700 ease-in-out"
-                style={{
-                    transform: `translateX(-${index * 100}%)`,
-                }}
-            >
-                {slides.map((slide) => (
-                    <div
-                        key={slide.id}
-                        className="min-w-full h-full relative flex items-center"
-                    >
-                        {/* BACKGROUND */}
-                        <div
-                            className="absolute inset-0 bg-cover bg-center"
-                            style={{
-                                backgroundImage: `url(${slide.image})`,
-                            }}
-                        />
+            {/* Slides */}
+            {[0, 1, 2].map((i) => (
+                <section
+                    key={i}
+                    className={`absolute inset-0 transition-all duration-700 ${current === i ? "opacity-100 z-10" : "opacity-0 z-0"
+                        }`}
+                >
 
-                        {/* OVERLAY */}
-                        <div className="absolute inset-0 bg-black/60" />
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/30 z-10" />
 
-                        {/* CONTENT */}
-                        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 text-white">
-                            <span className="text-xs tracking-[0.2em] text-lime-300 uppercase">
-                                {slide.tag}
+                    {/* Background image */}
+                    <img
+                        src={`/slide-${i + 1}.jpg`}
+                        alt=""
+                        className="w-full h-full object-cover"
+                    />
+
+                    {/* Content */}
+                    <div className="absolute inset-0 z-20 flex items-center px-10 md:px-24">
+                        <div className="max-w-2xl text-white">
+
+                            <span className="text-xs uppercase tracking-widest bg-black/40 px-3 py-1 rounded-full">
+                                Growth Ecosystem
                             </span>
 
-                            <h1 className="text-4xl md:text-6xl font-bold mt-4">
-                                {slide.title}
+                            <h1 className="text-4xl md:text-6xl font-bold mt-6">
+                                {i === 0 && "Grounded Ideas, High Stakes Growth"}
+                                {i === 1 && "Structured Success, Scalable Future"}
+                                {i === 2 && "Build Together. Grow Enduringly."}
                             </h1>
 
-                            <p className="mt-6 max-w-xl text-gray-200 border-l-4 border-lime-400 pl-4">
-                                {slide.description}
+                            <p className="mt-6 text-white/80 border-l-2 border-green-400 pl-4">
+                                Altravo bridges innovation and structured capital for modern founders.
                             </p>
 
-                            <div className="flex gap-4 mt-8 flex-wrap">
-                                <Button className="bg-lime-400 text-black font-semibold">
-                                    {slide.primaryBtn}
-                                    <FaArrowRight className="ml-2" />
-                                </Button>
-
-                                <Button variant="bordered" className="text-white border-white/40">
-                                    {slide.secondaryBtn}
-                                </Button>
+                            <div className="flex gap-4 mt-8">
+                                <button className="px-6 py-3 bg-green-500 text-black rounded-lg">
+                                    Explore Ideas
+                                </button>
+                                <button className="px-6 py-3 border border-white rounded-lg">
+                                    View Portfolio
+                                </button>
                             </div>
+
                         </div>
                     </div>
-                ))}
-            </div>
+                </section>
+            ))}
 
-            <div className="absolute bottom-10 right-8 flex flex-col gap-3 z-20">
-                {slides.map((_, i) => (
+            {/* Dots */}
+            <div className="absolute bottom-10 right-10 z-30 flex flex-col gap-3">
+                {[0, 1, 2].map((i) => (
                     <button
                         key={i}
-                        onClick={() => setIndex(i)}
-                        className={`w-3 h-3 rounded-full transition-all ${index === i
-                            ? "bg-lime-400 scale-125"
-                            : "bg-white/40"
+                        onClick={() => goToSlide(i)}
+                        className={`w-3 h-3 rounded-full border transition-all ${current === i ? "bg-white" : "bg-white/30"
                             }`}
                     />
                 ))}
             </div>
-        </section>
+
+            {/* Progress bar */}
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10 z-30">
+                <div
+                    key={current}
+                    className="h-full bg-green-400 transition-all duration-[5000ms] ease-linear"
+                    style={{ width: "100%" }}
+                />
+            </div>
+        </main>
     );
 }
