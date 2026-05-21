@@ -1,17 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@heroui/react";
-import { FaMoon, FaSun } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { signUp } from "../lib/auth-client";
+import { Button } from "@heroui/react";
+import { authClient, signUp } from "@/app/lib/auth-client";
 
 export default function SignupPage() {
-    const [darkMode, setDarkMode] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
     const router = useRouter();
 
     const [formData, setFormData] = useState({
@@ -21,210 +15,179 @@ export default function SignupPage() {
         password: "",
     });
 
-    const toggleTheme = () => {
-        setDarkMode((prev) => {
-            const newMode = !prev;
-            document.documentElement.classList.toggle("dark", newMode);
-            return newMode;
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
         });
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-        setError("");
-    };
-
-    const validateForm = () => {
-        if (!formData.fullName.trim()) {
-            setError("Full name is required");
-            return false;
-        }
-        if (!formData.email.trim()) {
-            setError("Email is required");
-            return false;
-        }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            setError("Please enter a valid email");
-            return false;
-        }
-        if (!formData.password) {
-            setError("Password is required");
-            return false;
-        }
-        if (formData.password.length < 6) {
-            setError("Password must be at least 6 characters");
-            return false;
-        }
-        return true;
     };
 
     const handleSignup = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
-
-        if (!validateForm()) {
-            return;
-        }
-
         setLoading(true);
 
         try {
-            const response = await signUp.email({
+            const result = await signUp.email({
                 email: formData.email,
                 password: formData.password,
                 name: formData.fullName,
                 image: formData.photoURL || undefined,
             });
 
-            if (response.error) {
-                setError(response.error.message || "Signup failed. Please try again.");
+            if (result.data) {
+                setSuccess("Account created!");
+                setTimeout(() => router.push("/homepage"), 1200);
             } else {
-                setSuccess("Account created successfully! Redirecting...");
-                setTimeout(() => {
-                    router.push("/");
-                }, 1500);
+                setError(result?.error?.message || "Signup failed");
             }
         } catch (err) {
-            console.error("Signup error:", err);
-            setError(err.message || "An error occurred during signup");
+            console.error(err);
+            setError("Something went wrong");
         } finally {
             setLoading(false);
         }
     };
 
+    const handleGoogleSignup = async () => {
+        try {
+            await authClient.signIn.social({
+                provider: "google",
+                callbackURL: "/homepage",
+            });
+        } catch (err) {
+            console.error(err);
+            setError("Google signup failed");
+        }
+    };
+
     return (
-        <div className="min-h-screen flex items-center justify-center p-6 bg-[#f0f3e7] text-on-background transition-colors duration-300">
+        <div className="min-h-screen flex items-center justify-center bg-[#f0f3e7] dark:bg-[#050805] p-6 transition-colors duration-500">
 
-            {/* Background Glow */}
-            <div className="fixed inset-0 -z-10 overflow-hidden">
-                <div className="absolute -top-20 -left-20 w-[40%] h-[60%] bg-[#4c6700]/20 blur-[120px] rounded-full" />
-                <div className="absolute bottom-0 right-0 w-[40%] h-[60%] bg-secondary/10 blur-[120px] rounded-full" />
-            </div>
+            <div className="w-full max-w-5xl grid md:grid-cols-12 bg-white dark:bg-[#11150f] rounded-2xl shadow-2xl overflow-hidden border border-black/5 dark:border-white/10 transition-colors duration-500">
 
-            <div className="w-full max-w-5xl grid md:grid-cols-12 bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-xl">
+                {/* LEFT */}
+                <div className="hidden md:flex md:col-span-5 bg-[#4c6700] dark:bg-lime-500 text-white dark:text-black p-10 flex-col justify-end transition-colors duration-500">
 
-                {/* LEFT SIDE */}
-                <div className="hidden md:flex md:col-span-5 relative bg-[#4c6700] text-white p-10 flex-col justify-end">
-                    <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1521737604893-d14cc237f11d')] bg-cover bg-center" />
+                    <span className="text-xs uppercase tracking-[0.25em] opacity-80">
+                        Join IdeaVault
+                    </span>
 
-                    <div className="relative z-10">
-                        <p className="text-xs tracking-widest text-secondary-fixed">
-                            IdeaVault
-                        </p>
-                        <h2 className="text-3xl font-bold mt-3">
-                            Join the future of innovation.
-                        </h2>
-                        <p className="text-sm text-primary-fixed mt-2">
-                            Build, share, and scale startup ideas with global innovators.
-                        </p>
-                    </div>
-                </div>
+                    <h2 className="text-4xl font-black mt-4 leading-tight">
+                        Build & Share Ideas Globally
+                    </h2>
 
-                {/* RIGHT SIDE */}
-                <div className="col-span-1 md:col-span-7 p-10 md:p-14">
-
-                    {/* Header */}
-                    <div className="flex justify-between items-center mb-10">
-                        <h1 className="text-2xl font-bold text-primary">
-                            IdeaVault
-                        </h1>
-
-                    </div>
-
-                    <h2 className="text-3xl font-bold mb-2">Create Account</h2>
-                    <p className="text-on-surface-variant mb-8">
-                        Join IdeaVault and start building your ideas.
+                    <p className="text-sm opacity-80 mt-4 max-w-sm">
+                        Connect with innovators, validate ideas, and turn concepts
+                        into real-world startups.
                     </p>
 
-                    {/* Form */}
-                    <form className="space-y-5" onSubmit={handleSignup}>
+                </div>
 
-                        {error && (
-                            <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm border border-red-300">
-                                {error}
-                            </div>
-                        )}
+                {/* RIGHT */}
+                <div className="md:col-span-7 p-8 md:p-10">
 
-                        {success && (
-                            <div className="p-3 bg-green-100 text-green-700 rounded-lg text-sm border border-green-300">
-                                {success}
-                            </div>
-                        )}
+                    <h2 className="text-3xl font-black text-[#18240a] dark:text-white mb-6 transition-colors duration-500">
+                        Create Account
+                    </h2>
 
+                    {/* ERROR */}
+                    {error && (
+                        <div className="p-3 bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-500/20 rounded-xl mb-4">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* SUCCESS */}
+                    {success && (
+                        <div className="p-3 bg-green-100 dark:bg-lime-500/10 text-green-700 dark:text-lime-300 border border-green-200 dark:border-lime-500/20 rounded-xl mb-4">
+                            {success}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSignup} className="space-y-5">
+
+                        {/* Full Name */}
                         <input
-                            type="text"
-                            placeholder="Full Name"
                             name="fullName"
-                            value={formData.fullName}
-                            onChange={handleInputChange}
-                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
-                            disabled={loading}
+                            placeholder="Full Name"
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0f08] px-4 py-3 text-[#18240a] dark:text-white placeholder:text-[#8a8d85] dark:placeholder:text-white/30 outline-none focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500 transition-all"
                         />
 
+                        {/* Email */}
                         <input
-                            type="email"
-                            placeholder="Email Address"
                             name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
-                            disabled={loading}
+                            placeholder="Email"
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0f08] px-4 py-3 text-[#18240a] dark:text-white placeholder:text-[#8a8d85] dark:placeholder:text-white/30 outline-none focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500 transition-all"
                         />
 
+                        {/* Photo URL */}
                         <input
-                            type="url"
-                            placeholder="Photo URL (optional)"
                             name="photoURL"
-                            value={formData.photoURL}
-                            onChange={handleInputChange}
-                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
-                            disabled={loading}
+                            placeholder="Photo URL (optional)"
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0f08] px-4 py-3 text-[#18240a] dark:text-white placeholder:text-[#8a8d85] dark:placeholder:text-white/30 outline-none focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500 transition-all"
                         />
 
                         {/* Password */}
-                        <div className="relative">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
-                                disabled={loading}
-                            />
+                        <input
+                            name="password"
+                            type="password"
+                            placeholder="Password"
+                            onChange={handleChange}
+                            className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0f08] px-4 py-3 text-[#18240a] dark:text-white placeholder:text-[#8a8d85] dark:placeholder:text-white/30 outline-none focus:ring-2 focus:ring-lime-500/20 focus:border-lime-500 transition-all"
+                        />
 
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-3 text-sm text-on-surface-variant"
-                                disabled={loading}
-                            >
-                                {showPassword ? "Hide" : "Show"}
-                            </button>
-                        </div>
-
-                        {/* Button */}
+                        {/* Submit */}
                         <Button
                             type="submit"
-                            className="w-full bg-[#4c6700] text-on-primary py-3"
                             disabled={loading}
+                            className="w-full rounded-xl bg-[#18240a] dark:bg-lime-500 py-6 font-semibold text-white dark:text-black transition-all hover:scale-[1.02]"
                         >
-                            {loading ? "Creating Account..." : "Create Account →"}
+                            {loading ? "Creating..." : "Create Account"}
                         </Button>
 
-                        <p className="text-sm text-center text-on-surface-variant">
-                            Already have an account?{" "}
-                            <a href="/login" className="text-secondary font-semibold cursor-pointer hover:underline">
-                                Login
-                            </a>
-                        </p>
+                        {/* Divider */}
+                        <div className="flex items-center gap-3 py-2">
+                            <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+                            <span className="text-xs text-[#7a7d75] dark:text-white/40 uppercase tracking-wider">
+                                OR
+                            </span>
+                            <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+                        </div>
+
+                        {/* GOOGLE */}
+                        <button
+                            type="button"
+                            onClick={handleGoogleSignup}
+                            className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0b0f08] px-4 py-3 flex items-center justify-center gap-3 text-[#18240a] dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                        >
+                            <img
+                                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                className="w-5 h-5"
+                                alt="Google"
+                            />
+                            Continue with Google
+                        </button>
+
                     </form>
+                    {/* Footer Link */}
+                    <p className="mt-8 text-center text-sm text-[#5b5d57] dark:text-white/60">
+                        Already have an account?{" "}
+                        <a
+                            href="/login"
+                            className="font-semibold text-lime-700 dark:text-lime-400 hover:underline"
+                        >
+                            Login here
+                        </a>
+                    </p>
                 </div>
             </div>
         </div>

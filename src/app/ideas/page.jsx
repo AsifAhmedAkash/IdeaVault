@@ -1,204 +1,196 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-    FiArrowRight,
-    FiDollarSign,
-    FiShield,
-    FiActivity,
-    FiHeart,
-    FiBriefcase,
-    FiCpu,
-} from "react-icons/fi";
+import { FiArrowRight, FiLoader } from "react-icons/fi";
 
-const ideas = [
+const DEFAULT_SEEDS = [
     {
         title: "EcoMesh Logistics",
         desc: "A decentralized delivery network utilizing solar-powered drones to bridge the last-mile gap in rural landscapes.",
-        tag: "SUSTAINABILITY",
-        icon: <FiDollarSign />,
+        tag: "Sustainability",
+        category: "Sustainability",
         stat: "Targeting $850k",
-        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCJ_NUaOdOOtyPvEVPm0tdA7HXYnbQxKCT-KKkEQ098GzVl1jXgLO0MPKzFk6fGJ_ZGS9NgLGV1THqv29EU_d1eAdvk7-Chwd15AW10XcwUmQG3mynY0euQsMqhjtwcEOs4b8vjlz5Sr4G-VkkFYnl49xojJFYN17EAEQcyvChGyM533c3faZlITb5ySVwm3uUt58wTjTuLFQ5IHDf_hxzhLOyUIp4eLQXkmxMuaKqx943w-kRxR2YKLvE3e92pYDvhTHomNtSVfvE",
+        targetAmount: "850000",
+        image: "https://images.unsplash.com/photo-1508614589041-895b88991e3e?q=80&w=600&auto=format&fit=crop",
+        problem: "Rural regions lack reliable road infrastructure, preventing delivery of vital medical supplies and basic goods.",
+        solution: "A network of solar drones and automated charging pads that coordinate to deliver cargo without reliance on roads.",
+        roadmap: "Q1: Test drone hover in high winds. Q2: Partner with local clinics. Q3: Launch pilot route in mountain villages.",
+        audience: "Rural healthcare providers, local NGOs, and regional logistics networks.",
+        personId: "6651a9c2f4b8e2a7b9d3c1e3",
+        date: "May 2026"
     },
     {
         title: "CogniSync AI",
         desc: "Real-time language translation for emotional nuance in high-stakes negotiations.",
-        tag: "AI-DRIVEN",
-        icon: <FiCpu />,
+        tag: "AI",
+        category: "AI",
         stat: "Pre-Seed Ready",
-        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBLDNV7fBBSNYisRlznbfCm3PMef_6yaWAbE435YBMmwsLOW2uXah1FxviDAU7RqJ0y0QeG2R0mIfMN2_r7Q05fKeHPKTKwhOLEBozWYa6I_7wrUfdi1gu971cgCmnOe-AeNLbmkl-kIuu-iJgd8TC2okQ9TByFBwLm-IVi7JVzZMvBX4ygpjJHEN559JrtbQtJ6uBMVbhhl9X6M7rKcS_Q1T8F9knEFxTBjPMg5X5Dl03KGCJN9APPMjVidCwFl00RPh0E4vlN0LA",
+        targetAmount: "300000",
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=600&auto=format&fit=crop",
+        problem: "Automated translators miss subtle emotional undertones and politeness levels, causing misunderstandings in business.",
+        solution: "An advanced LLM layer that tracks vocal tone, micro-expressions, and cultural idioms in real-time.",
+        roadmap: "Q1: Train model on bilingual negotiation transcripts. Q2: Release beta browser extension. Q3: Launch enterprise pilot.",
+        audience: "International law firms, merger & acquisition teams, and global sales departments.",
+        personId: "6651a9c2f4b8e2a7b9d3c1e3",
+        date: "May 2026"
     },
     {
         title: "Vanguard Protocol",
         desc: "Quantum-resistant encryption layers for enterprise infrastructure protection.",
-        tag: "SECURITY",
-        icon: <FiShield />,
+        tag: "FinTech",
+        category: "FinTech",
         stat: "Budget $1.2M",
-        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD4cZD50UuwQx22L4h4CtjfaRoCCdl1CPdp0_8AJK27AgoQggDoTB9PD5IC2hO3grsw7Uq4fpMDB7vwcFDwfZ9kRl_hR82oMeeZA6iWSaGDg7f564n1MJVpfNt-OQKi3thXhwrg6f0Kz7MQeHQ0d83l03TIlzUIQv28EIgS414OiaflCSi2kP8wfA0FH6HetAoDR7e3YTOEIVRmOsvXzfL8TkQhZ3jqVlfmxBR_9Zej9SP298Es_cpuuY7oNGUJd52hzgoGyVWb_JE",
-    },
-    {
-        title: "Lumina Health",
-        desc: "Predictive wellness monitoring using non-invasive biometric sensors.",
-        tag: "HEALTH-TECH",
-        icon: <FiHeart />,
-        stat: "Series A Ready",
-        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCDbnyt85zrXTK-44H0h1W8ovulCkN4hIn0keY2RZaITL_1Rp2oW2Y6SmoC-10P_dlYgbXZTX0YvU-ftIWDbpG6ESdfrsu9c5-llK_LvO7ynWaYBf8ALhH4e_trST35yIT1S6bTyQoesTZX0M2a2fR-zswKYd6hmj7Fqpifa65C9yzpcBuGF_xR0t0StHP8ZbAOTD1yknbTUb3KWQ7TOaNXQzCRw1yLiUCGtkTDqfY4WwozJljtDMaDOo-ctJnyPCRLnkxhwuILSXM",
-    },
-    {
-        title: "Aequitas Ledger",
-        desc: "Smart-contract escrow system for global IP licensing and royalties.",
-        tag: "FINTECH",
-        icon: <FiBriefcase />,
-        stat: "Budget $450k",
-        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDchn50KAUMFRMvCUafHZHCE4DjhDga3GtXpdAne4AWwpP7DnFQgdcvUZAnwDpJdyKRB6F-4uEhQkt7DYowzR_v1yQKVw3XKyM0qupL_HHryzkKh2mgCl6YFBbk6LWb5URYMbh21mC43xmmV9R4NgHbLns0xtqYSg0ook_UwdjZKTWUstekqkbuTSdx51RIPG36yChzRYnS1f1fb4EJVd0xjC5Tbr9-qFcsyZdefSGvJp4ExVjhOLwfXhgB8iuZLmVY7FrJt7H_2Ps",
-    },
-    {
-        title: "Kinetic Fabric",
-        desc: "Soft-robotics exoskeletons for warehouse worker assistance.",
-        tag: "ROBOTICS",
-        icon: <FiActivity />,
-        stat: "Targeting $2.1M",
-        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAwJ3FL6sZBbX-RY1RGSj0O4b_q8QqPAHgaKKO8-w8pBNqw9dduDuZLRBO1BgscRQrqwji0hIJA92GpkZQUQuCBNeBBPDN6qcCKD6vutwXS3DHH2xP3zaC1B4CwlfldiO3pRMDe9fPPrzn1ihhE-v25ugbw_E4e0wCOhc7nyGGhoFi9kMtkgHflQ0VbWKgRdC6SdzdFGuEVmjuHB2l_YCW0gSRnhBZefzmElWdC_qdTR8FpEvqFvMtv-hSDylYOfB4GQFj6DS5Fvp0",
-    },
+        targetAmount: "1200000",
+        image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=600&auto=format&fit=crop",
+        problem: "Standard RSA encryption will become obsolete as public quantum computers emerge, threatening critical systems.",
+        solution: "A plug-and-play SDK offering lattice-based cryptographic algorithms that secure systems against future quantum threats.",
+        roadmap: "Q1: Benchmarking library latency. Q2: Secure government agency beta testing. Q3: Launch general availability SaaS.",
+        audience: "Banking institutions, infrastructure providers, and government agencies.",
+        personId: "6651a9c2f4b8e2a7b9d3c1e3",
+        date: "May 2026"
+    }
 ];
 
-const colors = {
-    pageBg: "#fafaf3",
-    text: "#1a1c18",
-    muted: "#45483f",
-    cardBorder: "#c5c8bc",
-    green: "#18240a",
-    greenSoft: "#2d3a1e",
-    tagBg: "#c8f16b",
-};
-
 export default function IdeasPage() {
-    useEffect(() => {
-        const cards = document.querySelectorAll(".idea-card");
+    const [ideas, setIdeas] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, i) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.style.opacity = 1;
-                        entry.target.style.transform = "translateY(0)";
-                    }, i * 80);
+    const fetchIdeas = async () => {
+        setLoading(true);
+        setError("");
+        try {
+            const res = await fetch("http://localhost:5000/ideas");
+            if (!res.ok) throw new Error("Failed to fetch ideas");
+            const data = await res.json();
+
+            if (data.length === 0) {
+                // Database is empty. Seed database with defaults.
+                console.log("Database empty. Auto-seeding default ideas...");
+                for (const seed of DEFAULT_SEEDS) {
+                    await fetch("http://localhost:5000/ideas", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(seed)
+                    });
                 }
-            });
-        });
+                // Refetch after seeding
+                const reRes = await fetch("http://localhost:5000/ideas");
+                const reData = await reRes.json();
+                setIdeas(reData);
+            } else {
+                setIdeas(data);
+            }
+        } catch (err) {
+            console.error(err);
+            setError("Could not retrieve ideas. Ensure the server is running on port 5000.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        cards.forEach((c) => {
-            c.style.opacity = 0;
-            c.style.transform = "translateY(20px)";
-            c.style.transition = "all 0.6s ease";
-            observer.observe(c);
-        });
+    useEffect(() => {
+        fetchIdeas();
     }, []);
 
+    useEffect(() => {
+        if (ideas.length > 0) {
+            const cards = document.querySelectorAll(".idea-card");
+            cards.forEach((c) => {
+                c.style.opacity = 1;
+                c.style.transform = "translateY(0)";
+            });
+        }
+    }, [ideas]);
+
     return (
-        <main
-            style={{ backgroundColor: colors.pageBg, color: colors.text }}
-            className="min-h-screen px-6 md:px-16 py-20 max-w-7xl mx-auto"
-        >
+        <main className="min-h-screen px-6 md:px-16 py-20 max-w-7xl mx-auto bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300">
             {/* HEADER */}
             <header className="text-center md:text-left mb-16">
-                <div
-                    style={{
-                        backgroundColor: colors.tagBg,
-                        color: colors.green,
-                    }}
-                    className="inline-block px-4 py-1 rounded-full text-xs font-semibold mb-5"
-                >
+                <div className="inline-block px-4 py-1 rounded-full text-xs font-semibold mb-5 bg-lime-300 dark:bg-lime-900/50 text-lime-900 dark:text-lime-300">
                     THE GALLERY
                 </div>
 
-                <h1 className="text-5xl md:text-6xl font-bold mb-4">
+                <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">
                     Explore Innovation
                 </h1>
 
-                <p style={{ color: colors.muted }} className="max-w-2xl text-lg">
+                <p className="max-w-2xl text-lg text-zinc-500 dark:text-zinc-400">
                     A curated selection of high-potential ventures bridging organic
                     growth and strategic capital investment.
                 </p>
             </header>
 
-            {/* GRID */}
-            <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {ideas.map((item, i) => (
-                    <Link key={i} href={`/ideadetails/${i}`}>
-                        <article
-                            className="idea-card group rounded-lg overflow-hidden flex flex-col cursor-pointer"
-                            style={{
-                                backgroundColor: "white",
-                                border: `1px solid ${colors.cardBorder}`,
-                            }}
-                        >
-                            {/* IMAGE */}
-                            <div className="h-64 overflow-hidden relative">
-                                <img
-                                    src={item.img}
-                                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
-                                />
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                    <FiLoader className="animate-spin text-4xl text-lime-700" />
+                    <p className="text-zinc-500">Loading ideas from database...</p>
+                </div>
+            ) : error ? (
+                <div className="text-center py-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8">
+                    <p className="text-red-600 dark:text-red-400 font-medium mb-4">{error}</p>
+                    <button 
+                        onClick={fetchIdeas}
+                        className="px-6 py-2 bg-lime-700 hover:bg-lime-600 text-white rounded-full font-semibold transition"
+                    >
+                        Try Again
+                    </button>
+                </div>
+            ) : (
+                /* GRID */
+                <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {ideas.map((item) => (
+                        <Link key={item._id} href={`/ideadetails/${item._id}`}>
+                            <article
+                                className="idea-card group rounded-lg overflow-hidden flex flex-col cursor-pointer bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:shadow-lg transition-all duration-300 h-full"
+                                style={{
+                                    opacity: 0,
+                                    transform: "translateY(20px)",
+                                    transition: "all 0.6s ease"
+                                }}
+                            >
+                                {/* IMAGE */}
+                                <div className="h-64 overflow-hidden relative">
+                                    <img
+                                        src={item.image || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop"}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
+                                    />
 
-                                <div className="absolute top-4 left-4">
-                                    <span
-                                        style={{
-                                            backgroundColor: "rgba(0,0,0,0.75)",
-                                            color: "white",
-                                        }}
-                                        className="px-3 py-1 text-xs rounded-full"
-                                    >
-                                        {item.tag}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* CONTENT */}
-                            <div className="p-6 flex flex-col flex-grow">
-                                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-
-                                <p style={{ color: colors.muted }} className="flex-grow mb-6">
-                                    {item.desc}
-                                </p>
-
-                                <div
-                                    className="flex items-center justify-between pt-4"
-                                    style={{ borderTop: `1px solid ${colors.cardBorder}` }}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <span style={{ color: colors.green }}>
-                                            {item.icon}
+                                    <div className="absolute top-4 left-4">
+                                        <span className="px-3 py-1 text-xs rounded-full bg-black/75 text-white font-bold">
+                                            {item.category || item.tag || "GENERAL"}
                                         </span>
-                                        <span className="text-sm">{item.stat}</span>
                                     </div>
-
-                                    <button
-                                        style={{ color: colors.greenSoft }}
-                                        className="flex items-center gap-2 text-sm font-semibold group"
-                                    >
-                                        VIEW
-                                        <FiArrowRight className="group-hover:translate-x-1 transition" />
-                                    </button>
                                 </div>
-                            </div>
-                        </article>
-                    </Link>
-                ))}
-            </section>
 
-            {/* LOAD MORE */}
-            < div className="flex justify-center mt-16" >
-                <button
-                    style={{
-                        border: `1px solid ${colors.green}`,
-                        color: colors.green,
-                    }}
-                    className="px-10 py-3 rounded-full hover:text-white hover:bg-black transition"
-                >
-                    LOAD MORE INNOVATIONS
-                </button>
-            </div>
+                                {/* CONTENT */}
+                                <div className="p-6 flex flex-col flex-grow">
+                                    <h3 className="text-xl font-semibold mb-2 group-hover:text-lime-700 dark:group-hover:text-lime-400 transition">
+                                        {item.title}
+                                    </h3>
+
+                                    <p className="flex-grow mb-6 text-sm text-zinc-500 dark:text-zinc-400 line-clamp-3">
+                                        {item.desc || item.description}
+                                    </p>
+
+                                    <div className="flex items-center justify-between pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                        <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                                            {item.targetAmount ? `Targeting $${Number(item.targetAmount).toLocaleString()}` : (item.stat || "Budget Open")}
+                                        </div>
+
+                                        <button className="flex items-center gap-2 text-xs font-bold text-lime-800 dark:text-lime-400 group-hover:translate-x-1 transition duration-300">
+                                            VIEW DETAILS
+                                            <FiArrowRight />
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        </Link>
+                    ))}
+                </section>
+            )}
         </main>
     );
 }

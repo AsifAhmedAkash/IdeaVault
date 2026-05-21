@@ -1,43 +1,47 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
 import { FaMoon, FaSun } from "react-icons/fa";
+import { signOut, useSession } from "../lib/auth-client";
+import { useTheme } from "./ThemeProvider";
 
 export default function NavbarComponent() {
-    const [dark, setDark] = useState(false);
+    const { theme, toggleTheme } = useTheme();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-
-    // will apply theme to comp later not functional
-    useEffect(() => {
-        const root = document.documentElement;
-
-        if (dark) {
-            root.classList.add("dark");
-        } else {
-            root.classList.remove("dark");
-        }
-    }, [dark]);
+    const sessionInfo = useSession();
+    const session = sessionInfo?.data;
+    const user = session?.user;
+    const isLoggedIn = Boolean(user);
 
     return (
         <>
             {/* NAVBAR */}
-            <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-background/80 border-b border-outline-variant dark:border-white/10">
+            <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800 transition-colors duration-300">
                 <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 h-20">
 
                     {/* BRAND */}
-                    <h1 className="text-2xl font-bold text-primary dark:text-white tracking-tight">
-                        IdeaVault
-                    </h1>
+                    <Link href="/homepage">
+                        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight cursor-pointer">
+                            IdeaVault
+                        </h1>
+                    </Link>
 
                     {/* DESKTOP MENU */}
                     <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-                        <Link href="/homepage" className="text-primary dark:text-white">Home</Link>
-                        <Link href="/ideas" className="text-gray-500 hover:text-primary dark:hover:text-white">Ideas</Link>
-                        <Link href="/addidea" className="text-gray-500 hover:text-primary dark:hover:text-white">Add Idea</Link>
-                        <Link href="/ideas" className="text-gray-500 hover:text-primary dark:hover:text-white">Investors</Link>
+                        <Link href="/homepage" className="text-zinc-900 dark:text-white hover:text-lime-700 dark:hover:text-lime-400">Home</Link>
+                        <Link href="/ideas" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">Ideas</Link>
+
+                        {isLoggedIn && (
+                            <>
+                                <Link href="/addidea" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">Add Idea</Link>
+                                <Link href="/myideas" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">My Ideas</Link>
+                                <Link href="/myinteraction" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white">My Interactions</Link>
+                            </>
+                        )}
                     </nav>
 
                     {/* ACTIONS */}
@@ -47,22 +51,69 @@ export default function NavbarComponent() {
                         <Button
                             isIconOnly
                             variant="light"
-                            onClick={() => setDark(!dark)}
-                            className="text-primary dark:text-white"
+                            onClick={toggleTheme}
+                            className="text-zinc-900 dark:text-white"
                         >
-                            {dark ? <FaSun /> : <FaMoon />}
+                            {theme === "dark" ? <FaSun /> : <FaMoon />}
                         </Button>
 
-                        {/* PROFILE */}
-                        <Link href="/myinteraction">
-                            <div className="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-700 cursor-pointer" />
-                        </Link>
+                        {/* PROFILE / AUTH ACTIONS */}
+                        {!isLoggedIn ? (
+                            <div className="flex items-center gap-2">
+                                <Link href="/login" className="text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white px-3 py-2 text-sm font-medium">Login</Link>
+                                <Link href="/signup">
+                                    <Button size="sm" className="bg-lime-700 hover:bg-lime-600 text-white font-semibold">
+                                        Register
+                                    </Button>
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setDropdownOpen((s) => !s)}
+                                    className="w-9 h-9 rounded-full bg-lime-600 text-white flex items-center justify-center font-bold overflow-hidden cursor-pointer border border-zinc-200 dark:border-zinc-700"
+                                    aria-expanded={dropdownOpen}
+                                >
+                                    {user?.image ? (
+                                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        user?.name?.slice(0, 2).toUpperCase() || "US"
+                                    )}
+                                </button>
+
+                                {dropdownOpen && (
+                                    <div className="absolute right-0 mt-2 w-51 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-xl py-1 z-50">
+                                        <div className="px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800">
+                                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{user?.name}</p>
+                                            <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">{user?.email}</p>
+                                        </div>
+                                        <Link 
+                                            href="/profile" 
+                                            onClick={() => setDropdownOpen(false)} 
+                                            className="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                        >
+                                            Profile Management
+                                        </Link>
+                                        <button
+                                            onClick={async () => {
+                                                setDropdownOpen(false);
+                                                await signOut();
+                                                window.location.href = "/homepage";
+                                            }}
+                                            className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer"
+                                        >
+                                            Sign out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {/* MOBILE BUTTON */}
                         <Button
                             isIconOnly
                             variant="light"
-                            className="md:hidden"
+                            className="md:hidden text-zinc-900 dark:text-white"
                             onClick={() => setMobileOpen(true)}
                         >
                             ☰
@@ -73,29 +124,40 @@ export default function NavbarComponent() {
 
             {/* MOBILE MENU */}
             <div
-                className={`fixed inset-0 z-50 bg-black/50 transition ${mobileOpen ? "visible opacity-100" : "invisible opacity-0"
+                className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ${mobileOpen ? "visible opacity-100" : "invisible opacity-0"
                     }`}
                 onClick={() => setMobileOpen(false)}
             >
                 <div
-                    className={`absolute right-0 top-0 w-72 h-full bg-background dark:bg-gray-900 p-6 transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "translate-x-full"
+                    className={`absolute right-0 top-0 w-72 h-full bg-white dark:bg-zinc-900 p-6 transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "translate-x-full"
                         }`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <h2 className="text-xl font-bold mb-8 text-primary dark:text-white">
-                        IdeaVault
-                    </h2>
+                    <div className="flex justify-between items-center mb-8">
+                        <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
+                            IdeaVault
+                        </h2>
+                        <button onClick={() => setMobileOpen(false)} className="text-zinc-500 text-lg">×</button>
+                    </div>
 
-                    <div className="flex flex-col gap-5">
-                        <Link href="/homepage" onClick={() => setMobileOpen(false)}>Home</Link>
-                        <Link href="/ideas" onClick={() => setMobileOpen(false)}>Ideas</Link>
-                        <Link href="/addidea" onClick={() => setMobileOpen(false)}>Add Idea</Link>
-                        <Link href="/ideas" onClick={() => setMobileOpen(false)}>Investors</Link>
+                    <div className="flex flex-col gap-5 text-zinc-800 dark:text-zinc-200">
+                        <Link href="/homepage" onClick={() => setMobileOpen(false)} className="hover:text-lime-700 font-medium">Home</Link>
+                        <Link href="/ideas" onClick={() => setMobileOpen(false)} className="hover:text-lime-700 font-medium">Ideas</Link>
+                        {isLoggedIn && (
+                            <>
+                                <Link href="/addidea" onClick={() => setMobileOpen(false)} className="hover:text-lime-700 font-medium">Add Idea</Link>
+                                <Link href="/myideas" onClick={() => setMobileOpen(false)} className="hover:text-lime-700 font-medium">My Ideas</Link>
+                                <Link href="/myinteraction" onClick={() => setMobileOpen(false)} className="hover:text-lime-700 font-medium">My Interactions</Link>
+                            </>
+                        )}
                     </div>
 
                     <Button
-                        className="mt-8 w-full"
-                        onClick={() => setDark(!dark)}
+                        className="mt-8 w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-medium"
+                        onClick={() => {
+                            toggleTheme();
+                            setMobileOpen(false);
+                        }}
                     >
                         Toggle Theme
                     </Button>
@@ -103,4 +165,4 @@ export default function NavbarComponent() {
             </div>
         </>
     );
-}
+}

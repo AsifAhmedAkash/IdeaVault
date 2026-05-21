@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "../lib/auth-client";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "../../lib/auth-client";
 import {
     FiArrowLeft,
     FiArrowRight,
@@ -13,10 +13,12 @@ import {
     FiImage,
     FiLoader,
     FiCheckCircle,
+    FiTrash2
 } from "react-icons/fi";
-import { Button, Input, TextArea } from "@heroui/react";
+import { Button, Input, Textarea } from "@heroui/react";
 
-export default function AddIdeaPage() {
+export default function UpdateIdeaPage() {
+    const { id } = useParams();
     const router = useRouter();
     const sessionInfo = useSession();
     const user = sessionInfo?.data?.user;
@@ -30,54 +32,69 @@ export default function AddIdeaPage() {
     const [audience, setAudience] = useState("");
     const [targetAmount, setTargetAmount] = useState("");
     const [image, setImage] = useState("");
+    const [personId, setPersonId] = useState("");
+    const [creationDate, setCreationDate] = useState("");
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const sections = document.querySelectorAll("section");
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = "translateY(0)";
-                }
-            });
-        });
+        const fetchIdea = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/ideas/${id}`);
+                if (!res.ok) throw new Error("Failed to load idea details");
+                const data = await res.json();
+                
+                setTitle(data.title || "");
+                setCategory(data.category || data.tag || "AI");
+                setDesc(data.desc || data.description || "");
+                setProblem(data.problem || "");
+                setSolution(data.solution || "");
+                setRoadmap(data.roadmap || "");
+                setAudience(data.audience || "");
+                setTargetAmount(data.targetAmount || "");
+                setImage(data.image || "");
+                setPersonId(data.personId || "");
+                setCreationDate(data.date || "");
+            } catch (err) {
+                console.error(err);
+                setError("Could not retrieve idea details.");
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        sections.forEach((s) => {
-            s.style.opacity = 0;
-            s.style.transform = "translateY(20px)";
-            s.style.transition = "all 0.6s ease";
-            observer.observe(s);
-        });
-    }, []);
+        if (id) {
+            fetchIdea();
+        }
+    }, [id]);
 
-    const handleSubmit = async (e) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
         setError("");
 
         if (!user) {
-            setError("You must be logged in to submit an idea.");
+            setError("You must be logged in to update this idea.");
             return;
         }
 
-        setLoading(true);
+        if (user.id !== personId) {
+            setError("You do not have permission to update this idea.");
+            return;
+        }
 
-        const creationDate = new Date().toLocaleDateString("en-US", {
-            month: "short",
-            year: "numeric"
-        }); // e.g. "May 2026"
+        setUpdating(true);
 
         try {
-            const res = await fetch("http://localhost:5000/ideas", {
-                method: "POST",
+            // MongoDB update uses PATCH /ideas/:id
+            const res = await fetch(`http://localhost:5000/ideas/${id}`, {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    personId: user.id,
                     title,
-                    date: creationDate,
                     tag: category,
                     targetAmount,
                     image,
@@ -90,7 +107,7 @@ export default function AddIdeaPage() {
                 })
             });
 
-            if (!res.ok) throw new Error("Failed to submit idea to server.");
+            if (!res.ok) throw new Error("Failed to update idea on server.");
 
             setSuccess(true);
             setTimeout(() => {
@@ -98,49 +115,106 @@ export default function AddIdeaPage() {
             }, 1200);
         } catch (err) {
             console.error(err);
-            setError(err.message || "Failed to submit idea. Please try again.");
+            setError(err.message || "Failed to update idea. Please try again.");
         } finally {
-            setLoading(false);
+            setUpdating(false);
         }
     };
+
+    const handleDelete = async () => {
+        const confirmDelete = window.confirm(`Are you sure you want to delete "${title}"?`);
+        if (!confirmDelete) return;
+
+        setDeleting(true);
+        setError("");
+
+        try {
+            const res = await fetch(`http://localhost:5000/ideas/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!res.ok) throw new Error("Failed to delete idea from server.");
+
+            alert("Idea successfully deleted.");
+            router.push("/myideas");
+        } catch (err) {
+            console.error(err);
+            setError("Failed to delete idea. Please try again.");
+            setDeleting(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white">
+                <div className="flex flex-col items-center space-y-4">
+                    <FiLoader className="animate-spin text-4xl text-lime-700" />
+                    <p className="text-zinc-550">Loading details...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error && !title) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white py-12 px-6">
+                <div className="max-w-md w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-8 text-center shadow-md">
+                    <p className="text-red-650 dark:text-red-405 font-medium mb-4">{error}</p>
+                    <Button onClick={() => router.push("/myideas")} className="bg-lime-700 hover:bg-lime-650 text-white font-bold">
+                        Back to My Ideas
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen px-6 md:px-16 py-20 flex justify-center bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 transition-colors duration-300">
             <div className="w-full max-w-3xl">
                 {/* BACK */}
                 <button
-                    onClick={() => router.back()}
+                    onClick={() => router.push("/myideas")}
                     className="flex items-center gap-2 mb-10 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition cursor-pointer"
                 >
                     <FiArrowLeft />
                     <span className="text-xs uppercase tracking-widest font-semibold">
-                        Return to Hub
+                        Return to Ledger
                     </span>
                 </button>
 
                 {/* HEADER */}
-                <header className="mb-14">
-                    <p className="text-xs uppercase tracking-widest mb-3 font-bold text-lime-800 dark:text-lime-400">
-                        Innovation Submission
-                    </p>
+                <header className="mb-14 flex flex-col sm:flex-row justify-between sm:items-start gap-6">
+                    <div>
+                        <p className="text-xs uppercase tracking-widest mb-3 font-bold text-lime-800 dark:text-lime-400">
+                            Innovation Revision
+                        </p>
 
-                    <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">
-                        Seed Your Next Big Idea.
-                    </h1>
+                        <h1 className="text-4xl md:text-5xl font-black mb-2 tracking-tight">
+                            Refine Your Idea.
+                        </h1>
 
-                    <p className="max-w-xl text-zinc-500 dark:text-zinc-400">
-                        Provide the fundamental details of your innovation.
-                    </p>
+                        <p className="text-zinc-500 dark:text-zinc-400">
+                            Modify or delete your submission fields.
+                        </p>
+                    </div>
+
+                    <Button 
+                        disabled={deleting}
+                        onClick={handleDelete}
+                        className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 text-red-650 dark:text-red-400 font-bold flex items-center gap-2"
+                    >
+                        {deleting ? <FiLoader className="animate-spin" /> : <FiTrash2 />} Delete Idea
+                    </Button>
                 </header>
 
                 {error && (
-                    <div className="mb-6 p-4 bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900 rounded-xl text-sm">
+                    <div className="mb-6 p-4 bg-red-100 dark:bg-red-950/30 text-red-750 dark:text-red-400 border border-red-200 dark:border-red-900 rounded-xl text-sm">
                         {error}
                     </div>
                 )}
 
                 {/* FORM */}
-                <form onSubmit={handleSubmit} className="space-y-14">
+                <form onSubmit={handleUpdate} className="space-y-14">
                     {/* SECTION 1 */}
                     <section className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-2xl shadow-sm">
                         <h2 className="text-xl font-bold mb-6 border-b border-zinc-100 dark:border-zinc-850 pb-3">01 Core Identity</h2>
@@ -167,7 +241,7 @@ export default function AddIdeaPage() {
                                 </select>
                             </div>
 
-                            <TextArea
+                            <Textarea
                                 rows={2}
                                 placeholder="Elevator Pitch (Short Description)"
                                 value={desc}
@@ -185,7 +259,7 @@ export default function AddIdeaPage() {
                         </h2>
 
                         <div className="space-y-6">
-                            <TextArea
+                            <Textarea
                                 rows={3}
                                 placeholder="Problem Statement"
                                 value={problem}
@@ -194,7 +268,7 @@ export default function AddIdeaPage() {
                                 className="w-full"
                             />
 
-                            <TextArea
+                            <Textarea
                                 rows={3}
                                 placeholder="Proposed Solution"
                                 value={solution}
@@ -264,25 +338,25 @@ export default function AddIdeaPage() {
                     {/* SUBMIT */}
                     <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-10 border-t border-zinc-250 dark:border-zinc-800">
                         <p className="text-sm max-w-sm text-zinc-500 dark:text-zinc-400">
-                            By submitting, you agree to Altravo innovation standards.
+                            Updates are applied immediately across the IdeaVault gallery.
                         </p>
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={updating}
                             className="px-10 py-4 flex items-center gap-2 font-bold rounded-xl text-white bg-lime-700 hover:bg-lime-600 transition cursor-pointer"
                         >
-                            {loading ? (
+                            {updating ? (
                                 <>
-                                    <FiLoader className="animate-spin" /> Processing...
+                                    <FiLoader className="animate-spin" /> Updating...
                                 </>
                             ) : success ? (
                                 <>
-                                    <FiCheckCircle /> Submitted
+                                    <FiCheckCircle /> Updated
                                 </>
                             ) : (
                                 <>
-                                    Submit Idea <FiArrowRight />
+                                    Save Changes <FiArrowRight />
                                 </>
                             )}
                         </button>

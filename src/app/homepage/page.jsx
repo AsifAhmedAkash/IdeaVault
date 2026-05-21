@@ -1,4 +1,3 @@
-import React from 'react';
 import BannerSliderComponent from '../components/BannerSliderComponent';
 import NewsComponent from '../components/NewsComponent';
 import TrendingIdeasSection from '../components/TrendingIdeasSection';

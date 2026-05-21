@@ -1,11 +1,7 @@
 "use client";
 
 import { Button, Chip } from "@heroui/react";
-import {
-    FaArrowRight,
-    FaChevronLeft,
-    FaChevronRight,
-} from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 
 const trendingIdeas = [
     {
@@ -66,39 +62,40 @@ const trendingIdeas = [
 
 export default function TrendingIdeasSection() {
     return (
-        <section className="bg-[#f8f8f3] py-24">
+        <section className="bg-[#f8f8f3] dark:bg-[#0b0f08] py-24 transition-colors duration-500">
             <div className="mx-auto max-w-7xl px-6 lg:px-10">
                 {/* Header */}
                 <div className="mb-16">
-                    <span className="mb-5 inline-block text-xs font-bold uppercase tracking-[0.25em] text-lime-700">
+                    <span className="mb-5 inline-block text-xs font-bold uppercase tracking-[0.25em] text-lime-700 dark:text-lime-400">
                         • Trending Ideas
                     </span>
 
                     <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
-                            <h2 className="text-4xl font-black leading-tight text-[#18240a] md:text-5xl lg:text-6xl">
+                            <h2 className="text-4xl font-black leading-tight text-[#18240a] dark:text-white md:text-5xl lg:text-6xl transition-colors duration-500">
                                 Discover the next generation of{" "}
-                                <span className="text-lime-700">
+                                <span className="text-lime-700 dark:text-lime-400">
                                     grounded innovation.
                                 </span>
                             </h2>
                         </div>
 
                         <div className="max-w-md">
-                            <p className="text-base leading-relaxed text-[#4a4d44] md:text-lg">
+                            <p className="text-base leading-relaxed text-[#4a4d44] dark:text-white/70 md:text-lg transition-colors duration-500">
                                 Every startup idea on IdeaVault is crafted to solve
-                                real-world challenges through innovation, scalability,
-                                and community-driven collaboration.
+                                real-world challenges through innovation,
+                                scalability, and community-driven collaboration.
                             </p>
                         </div>
                     </div>
                 </div>
-                {/* main  */}
+
+                {/* Cards */}
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
                     {trendingIdeas.map((idea) => (
                         <div
                             key={idea.id}
-                            className="group overflow-hidden rounded-3xl border border-black/5 bg-white transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                            className="group overflow-hidden rounded-3xl border border-black/5 dark:border-white/10 bg-white dark:bg-[#11150f] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
                         >
                             {/* Image */}
                             <div className="relative h-72 overflow-hidden">
@@ -109,7 +106,7 @@ export default function TrendingIdeasSection() {
                                 />
 
                                 {/* Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                                 {/* Category */}
                                 <div className="absolute left-5 top-5">
@@ -124,29 +121,29 @@ export default function TrendingIdeasSection() {
 
                             {/* Content */}
                             <div className="flex flex-1 flex-col p-8">
-                                <h3 className="mb-4 text-2xl font-bold text-[#18240a]">
+                                <h3 className="mb-4 text-2xl font-bold text-[#18240a] dark:text-white transition-colors duration-500">
                                     {idea.title}
                                 </h3>
 
-                                <p className="mb-8 flex-grow leading-relaxed text-[#5b5d57]">
+                                <p className="mb-8 flex-grow leading-relaxed text-[#5b5d57] dark:text-white/65 transition-colors duration-500">
                                     {idea.description}
                                 </p>
 
                                 {/* Footer */}
-                                <div className="flex items-center justify-between border-t border-black/5 pt-6">
+                                <div className="flex items-center justify-between border-t border-black/5 dark:border-white/10 pt-6 transition-colors duration-500">
                                     <div>
-                                        <p className="text-sm font-medium text-[#7b7e77]">
+                                        <p className="text-sm font-medium text-[#7b7e77] dark:text-white/50">
                                             Trending Startup
                                         </p>
 
-                                        <p className="mt-1 text-sm font-bold text-lime-700">
+                                        <p className="mt-1 text-sm font-bold text-lime-700 dark:text-lime-400">
                                             Community Favorite
                                         </p>
                                     </div>
 
                                     <Button
                                         radius="sm"
-                                        className="bg-[#18240a] px-5 text-white transition-all duration-300 group-hover:bg-lime-600"
+                                        className="bg-[#18240a] dark:bg-lime-500 px-5 text-white dark:text-black transition-all duration-300 group-hover:bg-lime-600 dark:group-hover:bg-lime-400"
                                         endContent={<FaArrowRight />}
                                     >
                                         Details
@@ -156,7 +153,6 @@ export default function TrendingIdeasSection() {
                         </div>
                     ))}
                 </div>
-
             </div>
         </section>
     );

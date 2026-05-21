@@ -2,37 +2,15 @@ import React from "react";
 
 const ideas = [
     {
+        personId: "6651a9c2f4b8e2a7b9d3c1e3",
         title: "Verdant Systems",
         date: "Mar 2025",
         tag: "AgriTech",
+        targetAmount: "100000",
         image:
             "https://lh3.googleusercontent.com/aida-public/AB6AXuDdPyRdPsfQHo-g1IW2XZ0aVI9l7pG14R2T6dbU8Kdca7jGdJ9c9Kz5BvrBzXSVuOpwDdgntxhTw6Vf9ipvlbH3maxDM2C4D9DlkDjv1KP7UjhKnZ1mIkpc01SXq99tEg3kRAP_44mhp5ZWTX66GvcAnLqhuNe2UhQ5S9uvfRfhuniXzainKKgaKK9nIaJHOP6Lz5qNNWv4WVrFsZu1NaF66uXnxZMQiHoyaDNZjedVoe07f_cLNBwQgF1SvWWMDwI7uwowFjypnGM",
         desc: "Scalable vertical farming solutions designed for urban industrial hubs, utilizing recycled greywater and AI-optimized nutrient delivery.",
-    },
-    {
-        title: "Lichen Capital",
-        date: "Feb 2025",
-        tag: "FinTech",
-        image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuDdPyRdPsfQHo-g1IW2XZ0aVI9l7pG14R2T6dbU8Kdca7jGdJ9c9Kz5BvrBzXSVuOpwDdgntxhTw6Vf9ipvlbH3maxDM2C4D9DlkDjv1KP7UjhKnZ1mIkpc01SXq99tEg3kRAP_44mhp5ZWTX66GvcAnLqhuNe2UhQ5S9uvfRfhuniXzainKKgaKK9nIaJHOP6Lz5qNNWv4WVrFsZu1NaF66uXnxZMQiHoyaDNZjedVoe07f_cLNBwQgF1SvWWMDwI7uwowFjypnGM",
-        desc: "Micro-investment platform for slow-growth biological assets focusing on stability and regenerative yield systems.",
-    },
-    {
-        title: "Aeon Turbine",
-        date: "Jan 2025",
-        tag: "CleanEnergy",
-        image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuDD3vXnX8Mibsxkp8eDzED-oJ3cUkOc-XLcSRflNNBDDYSkXFbsX437K9cdPuR-6UMgnQaRWjusXxBJIlrlgNmaiEdi-oYQzAp1LmLuETJin5h2SVeIVEUWnk6TiPsq65YKnD7pwZqfg9kmk9e5O50U59QMnMCzefCoFPY4XVWQsqimMCl7HkZVf2oZayRZF1WG2CSRHkTLd2W0wLdJP2CGWlLGqOFHGw_nGqXATAKQXNVZTY7os26Wl81nfMADfuYBbQd_jwptrzo",
-        desc: "Low-profile wind harvesting for dense urban rooftops with silent modular integration.",
-    },
-    {
-        title: "Substrate AI",
-        date: "Jan 2025",
-        tag: "Bio-Computing",
-        image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuDD3vXnX8Mibsxkp8eDzED-oJ3cUkOc-XLcSRflNNBDDYSkXFbsX437K9cdPuR-6UMgnQaRWjusXxBJIlrlgNmaiEdi-oYQzAp1LmLuETJin5h2SVeIVEUWnk6TiPsq65YKnD7pwZqfg9kmk9e5O50U59QMnMCzefCoFPY4XVWQsqimMCl7HkZVf2oZayRZF1WG2CSRHkTLd2W0wLdJP2CGWlLGqOFHGw_nGqXATAKQXNVZTY7os26Wl81nfMADfuYBbQd_jwptrzo",
-        desc: "Biological computing-based neural optimization achieving major GPU efficiency reduction.",
-    },
+    }
 ];
 
 export default function MyIdeasPage() {
