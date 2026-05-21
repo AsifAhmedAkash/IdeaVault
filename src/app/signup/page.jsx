@@ -3,10 +3,23 @@
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import { FaMoon, FaSun } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { signUp } from "../lib/auth-client";
 
 export default function SignupPage() {
     const [darkMode, setDarkMode] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+    const router = useRouter();
+
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        photoURL: "",
+        password: "",
+    });
 
     const toggleTheme = () => {
         setDarkMode((prev) => {
@@ -14,6 +27,75 @@ export default function SignupPage() {
             document.documentElement.classList.toggle("dark", newMode);
             return newMode;
         });
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+        setError("");
+    };
+
+    const validateForm = () => {
+        if (!formData.fullName.trim()) {
+            setError("Full name is required");
+            return false;
+        }
+        if (!formData.email.trim()) {
+            setError("Email is required");
+            return false;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError("Please enter a valid email");
+            return false;
+        }
+        if (!formData.password) {
+            setError("Password is required");
+            return false;
+        }
+        if (formData.password.length < 6) {
+            setError("Password must be at least 6 characters");
+            return false;
+        }
+        return true;
+    };
+
+    const handleSignup = async (e) => {
+        e.preventDefault();
+        setError("");
+        setSuccess("");
+
+        if (!validateForm()) {
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const response = await signUp.email({
+                email: formData.email,
+                password: formData.password,
+                name: formData.fullName,
+                image: formData.photoURL || undefined,
+            });
+
+            if (response.error) {
+                setError(response.error.message || "Signup failed. Please try again.");
+            } else {
+                setSuccess("Account created successfully! Redirecting...");
+                setTimeout(() => {
+                    router.push("/");
+                }, 1500);
+            }
+        } catch (err) {
+            console.error("Signup error:", err);
+            setError(err.message || "An error occurred during signup");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -61,24 +143,48 @@ export default function SignupPage() {
                     </p>
 
                     {/* Form */}
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSignup}>
+
+                        {error && (
+                            <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm border border-red-300">
+                                {error}
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="p-3 bg-green-100 text-green-700 rounded-lg text-sm border border-green-300">
+                                {success}
+                            </div>
+                        )}
 
                         <input
                             type="text"
                             placeholder="Full Name"
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleInputChange}
                             className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
+                            disabled={loading}
                         />
 
                         <input
                             type="email"
                             placeholder="Email Address"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
                             className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
+                            disabled={loading}
                         />
 
                         <input
                             type="url"
                             placeholder="Photo URL (optional)"
+                            name="photoURL"
+                            value={formData.photoURL}
+                            onChange={handleInputChange}
                             className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
+                            disabled={loading}
                         />
 
                         {/* Password */}
@@ -86,28 +192,37 @@ export default function SignupPage() {
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="Password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
                                 className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
+                                disabled={loading}
                             />
 
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3 top-3 text-sm text-on-surface-variant"
+                                disabled={loading}
                             >
                                 {showPassword ? "Hide" : "Show"}
                             </button>
                         </div>
 
                         {/* Button */}
-                        <Button className="w-full bg-[#4c6700] text-on-primary py-3">
-                            Create Account →
+                        <Button
+                            type="submit"
+                            className="w-full bg-[#4c6700] text-on-primary py-3"
+                            disabled={loading}
+                        >
+                            {loading ? "Creating Account..." : "Create Account →"}
                         </Button>
 
                         <p className="text-sm text-center text-on-surface-variant">
                             Already have an account?{" "}
-                            <span className="text-secondary font-semibold cursor-pointer">
+                            <a href="/login" className="text-secondary font-semibold cursor-pointer hover:underline">
                                 Login
-                            </span>
+                            </a>
                         </p>
                     </form>
                 </div>

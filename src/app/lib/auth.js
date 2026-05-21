@@ -1,17 +1,29 @@
 import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
-import { jwt } from "better-auth/plugins";
+import { MongoClient } from "mongodb";
 
-const client = new MongoClient(process.env.MONGODB_URI);
-const db = client.db('ideavault');
+const uri = process.env.MONGODB_URI;
 
+if (!uri) {
+    throw new Error("MONGODB_URI missing");
+}
+
+const client = new MongoClient(uri);
+
+await client.connect();
+
+const db = client.db("ideavault");
 
 export const auth = betterAuth({
-    database: mongodbAdapter(db, {
+    database: mongodbAdapter(db),
 
-        client
-    }),
-    //...other options
+    emailAndPassword: {
+        enabled: true,
+    },
 
+    secret: process.env.BETTER_AUTH_SECRET,
+
+    baseURL:
+        process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+        "http://localhost:3000",
 });

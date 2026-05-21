@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import {
     FiArrowRight,
     FiDollarSign,
@@ -125,68 +126,69 @@ export default function IdeasPage() {
             {/* GRID */}
             <section className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {ideas.map((item, i) => (
-                    <article
-                        key={i}
-                        className="idea-card group rounded-lg overflow-hidden flex flex-col"
-                        style={{
-                            backgroundColor: "white",
-                            border: `1px solid ${colors.cardBorder}`,
-                        }}
-                    >
-                        {/* IMAGE */}
-                        <div className="h-64 overflow-hidden relative">
-                            <img
-                                src={item.img}
-                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
-                            />
+                    <Link key={i} href={`/ideadetails/${i}`}>
+                        <article
+                            className="idea-card group rounded-lg overflow-hidden flex flex-col cursor-pointer"
+                            style={{
+                                backgroundColor: "white",
+                                border: `1px solid ${colors.cardBorder}`,
+                            }}
+                        >
+                            {/* IMAGE */}
+                            <div className="h-64 overflow-hidden relative">
+                                <img
+                                    src={item.img}
+                                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition duration-500"
+                                />
 
-                            <div className="absolute top-4 left-4">
-                                <span
-                                    style={{
-                                        backgroundColor: "rgba(0,0,0,0.75)",
-                                        color: "white",
-                                    }}
-                                    className="px-3 py-1 text-xs rounded-full"
-                                >
-                                    {item.tag}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* CONTENT */}
-                        <div className="p-6 flex flex-col flex-grow">
-                            <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-
-                            <p style={{ color: colors.muted }} className="flex-grow mb-6">
-                                {item.desc}
-                            </p>
-
-                            <div
-                                className="flex items-center justify-between pt-4"
-                                style={{ borderTop: `1px solid ${colors.cardBorder}` }}
-                            >
-                                <div className="flex items-center gap-2">
-                                    <span style={{ color: colors.green }}>
-                                        {item.icon}
+                                <div className="absolute top-4 left-4">
+                                    <span
+                                        style={{
+                                            backgroundColor: "rgba(0,0,0,0.75)",
+                                            color: "white",
+                                        }}
+                                        className="px-3 py-1 text-xs rounded-full"
+                                    >
+                                        {item.tag}
                                     </span>
-                                    <span className="text-sm">{item.stat}</span>
                                 </div>
-
-                                <button
-                                    style={{ color: colors.greenSoft }}
-                                    className="flex items-center gap-2 text-sm font-semibold group"
-                                >
-                                    VIEW
-                                    <FiArrowRight className="group-hover:translate-x-1 transition" />
-                                </button>
                             </div>
-                        </div>
-                    </article>
+
+                            {/* CONTENT */}
+                            <div className="p-6 flex flex-col flex-grow">
+                                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+
+                                <p style={{ color: colors.muted }} className="flex-grow mb-6">
+                                    {item.desc}
+                                </p>
+
+                                <div
+                                    className="flex items-center justify-between pt-4"
+                                    style={{ borderTop: `1px solid ${colors.cardBorder}` }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span style={{ color: colors.green }}>
+                                            {item.icon}
+                                        </span>
+                                        <span className="text-sm">{item.stat}</span>
+                                    </div>
+
+                                    <button
+                                        style={{ color: colors.greenSoft }}
+                                        className="flex items-center gap-2 text-sm font-semibold group"
+                                    >
+                                        VIEW
+                                        <FiArrowRight className="group-hover:translate-x-1 transition" />
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    </Link>
                 ))}
             </section>
 
             {/* LOAD MORE */}
-            <div className="flex justify-center mt-16">
+            < div className="flex justify-center mt-16" >
                 <button
                     style={{
                         border: `1px solid ${colors.green}`,

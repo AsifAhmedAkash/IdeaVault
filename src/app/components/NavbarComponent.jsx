@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Button } from "@heroui/react";
 import { FaMoon, FaSun } from "react-icons/fa";
 
@@ -33,10 +34,10 @@ export default function NavbarComponent() {
 
                     {/* DESKTOP MENU */}
                     <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-                        <a className="text-primary dark:text-white" href="#">Home</a>
-                        <a className="text-gray-500 hover:text-primary dark:hover:text-white" href="#">Ideas</a>
-                        <a className="text-gray-500 hover:text-primary dark:hover:text-white" href="#">Add Idea</a>
-                        <a className="text-gray-500 hover:text-primary dark:hover:text-white" href="#">Investors</a>
+                        <Link href="/homepage" className="text-primary dark:text-white">Home</Link>
+                        <Link href="/ideas" className="text-gray-500 hover:text-primary dark:hover:text-white">Ideas</Link>
+                        <Link href="/addidea" className="text-gray-500 hover:text-primary dark:hover:text-white">Add Idea</Link>
+                        <Link href="/ideas" className="text-gray-500 hover:text-primary dark:hover:text-white">Investors</Link>
                     </nav>
 
                     {/* ACTIONS */}
@@ -53,7 +54,9 @@ export default function NavbarComponent() {
                         </Button>
 
                         {/* PROFILE */}
-                        <div className="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-700" />
+                        <Link href="/myinteraction">
+                            <div className="w-9 h-9 rounded-full bg-gray-300 dark:bg-gray-700 cursor-pointer" />
+                        </Link>
 
                         {/* MOBILE BUTTON */}
                         <Button
@@ -84,10 +87,10 @@ export default function NavbarComponent() {
                     </h2>
 
                     <div className="flex flex-col gap-5">
-                        <a href="#">Home</a>
-                        <a href="#">Ideas</a>
-                        <a href="#">Add Idea</a>
-                        <a href="#">Investors</a>
+                        <Link href="/homepage" onClick={() => setMobileOpen(false)}>Home</Link>
+                        <Link href="/ideas" onClick={() => setMobileOpen(false)}>Ideas</Link>
+                        <Link href="/addidea" onClick={() => setMobileOpen(false)}>Add Idea</Link>
+                        <Link href="/ideas" onClick={() => setMobileOpen(false)}>Investors</Link>
                     </div>
 
                     <Button

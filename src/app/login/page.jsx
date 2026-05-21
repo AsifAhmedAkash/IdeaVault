@@ -1,10 +1,41 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@heroui/react";
-import { FaMoon, FaSun } from "react-icons/fa";
+import { signIn } from "@/app/lib/auth-client";
 
 export default function LoginPage() {
+    const router = useRouter();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+
+        try {
+            const result = await signIn.email({
+                email,
+                password,
+            });
+
+            if (result.data) {
+                router.push("/homepage");
+            } else if (result.error) {
+                setError(result.error.message || "Login failed");
+            }
+        } catch (err) {
+            setError("An error occurred during login");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -52,23 +83,35 @@ export default function LoginPage() {
                         Continue your innovation journey.
                     </p>
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Form */}
-                    <form className="space-y-5">
+                    <form onSubmit={handleLogin} className="space-y-5">
 
                         {/* Email */}
                         <input
                             type="email"
                             placeholder="Email Address"
-                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface focus:outline-none focus:ring-2 focus:ring-[#4c6700]"
                         />
 
                         {/* Password */}
                         <input
                             type="password"
                             placeholder="Password"
-                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            className="w-full p-3 rounded-lg border border-outline-variant bg-surface focus:outline-none focus:ring-2 focus:ring-[#4c6700]"
                         />
-
                         {/* Forgot Password */}
                         <div className="text-right">
                             <span className="text-sm text-secondary cursor-pointer hover:underline">
@@ -77,7 +120,7 @@ export default function LoginPage() {
                         </div>
 
                         {/* Login Button */}
-                        <Button className="w-full bg-[#4c6700] text-on-primary py-3">
+                        <Button type="submit" className="w-full bg-[#4c6700] text-on-primary py-3">
                             Login →
                         </Button>
 
@@ -106,13 +149,15 @@ export default function LoginPage() {
                         {/* Signup */}
                         <p className="text-center text-sm text-on-surface-variant mt-6">
                             Don’t have an account?{" "}
-                            <span className="text-secondary font-semibold cursor-pointer hover:underline">
-                                Sign up
-                            </span>
+                            <Link href="/signup">
+                                <span className="text-secondary font-semibold cursor-pointer hover:underline">
+                                    Sign up
+                                </span>
+                            </Link>
                         </p>
                     </form>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

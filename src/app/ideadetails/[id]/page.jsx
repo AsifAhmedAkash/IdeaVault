@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import {
     FiArrowLeft,
     FiBookmark,
@@ -40,7 +41,12 @@ export default function IdeaDetailsPage() {
 
     return (
         <div style={{ backgroundColor: colors.bg, color: colors.text }}>
-
+            {/* BACK BUTTON */}
+            <div className="max-w-6xl mx-auto px-6 md:px-16 pt-8 mb-4">
+                <Link href="/ideas" className="flex items-center gap-2 text-sm font-semibold" style={{ color: colors.primary }}>
+                    <FiArrowLeft /> Back to Ideas
+                </Link>
+            </div>
 
             {/* MAIN */}
             <main className="max-w-6xl mx-auto px-6 md:px-16 pb-32">
